@@ -1,0 +1,82 @@
+﻿@page "/"
+@using ClosedXML.Excel
+@rendermode InteractiveServer
+<FluentInputFile @ref="@myFileUploader"
+                 DragDropZoneVisible="false"
+                 Mode="InputFileMode.Stream"
+                 Multiple="false"
+                 AnchorId="MyUploadButton"
+                 MaximumFileSize="@(100 * 1024 * 1024)"
+                 Accept=".xlsx"
+                 OnProgressChange="@(e =>
+                     {
+                         progressPercent = e.ProgressPercent;
+                         progressTitle = e.ProgressTitle;
+                     })"
+                 OnCompleted="@OnCompleted" />
+
+<FluentProgress Min="0" Max="100" Visible="@(progressPercent > 0)" Value="@progressPercent" />
+<FluentLabel Alignment="HorizontalAlignment.Center">
+    @progressTitle
+</FluentLabel>
+
+<FluentButton Id="MyUploadButton" Appearance="Appearance.Accent">
+    Upload files
+</FluentButton>
+
+@if (Files.Any())
+{
+    <h4>File(s) uploaded:</h4>
+    <ul>
+        @foreach (var ws in Worksheets)
+        {
+            <li>
+                <b>@ws.Name</b> 🔹
+            </li>
+        }
+    </ul>
+}
+
+@code
+{
+    FluentInputFile? myFileUploader = default!;
+    int? progressPercent;
+    string? progressTitle;
+
+    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
+
+    IList<IXLWorksheet> Worksheets = [];
+    async Task OnCompleted(IEnumerable<FluentInputFileEventArgs> files)
+    {
+        Files = files.ToArray();
+
+
+
+        progressPercent = myFileUploader!.ProgressPercent;
+        progressTitle = myFileUploader!.ProgressTitle;
+
+        try
+        {
+
+            foreach (var file in Files)
+            {
+                if (file.Stream != null)
+                {
+                    var ms = new MemoryStream();
+                    await file.Stream.CopyToAsync(ms);
+                    var workbook = new XLWorkbook(ms);
+                    foreach (var ws in workbook.Worksheets)
+                    {
+                        Worksheets.Add(ws);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            
+            throw;
+        }
+        // For the demo, delete these files.
+    }
+}
