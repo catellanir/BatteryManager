@@ -1,0 +1,32 @@
+﻿@page "/customers"
+@using BatteryManager.UI.DataAccess
+@using BatteryManager.UI.Services
+@attribute [StreamRendering]
+@inject ICustomerService CustomerService
+
+<PageTitle>Customers</PageTitle>
+
+<h1>Customers</h1>
+
+@if (customers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <!-- This page is rendered in SSR mode, so the FluentDataGrid component does not offer any interactivity (like sorting). -->
+    <FluentDataGrid Id="customer-grid" Items="@customers" GridTemplateColumns="1fr 1fr 1fr 2fr" TGridItem="Customer">
+        <PropertyColumn Title="Id" Property="@(c => c!.Id)" Align="Align.Start" />
+        <PropertyColumn Title="Name" Property="@(c => c!.Name)" Align="Align.Start" />
+    </FluentDataGrid>
+}
+
+@code {
+    private IQueryable<Customer>? customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var c =await CustomerService.GetAll();
+        customers = c.AsQueryable();
+    }
+}

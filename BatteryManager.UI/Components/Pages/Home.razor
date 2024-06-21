@@ -1,6 +1,10 @@
 ﻿@page "/"
+@using BatteryManager.UI.Models
+@using BatteryManager.UI.Services
 @using ClosedXML.Excel
+@using System.Linq
 @rendermode InteractiveServer
+@inject IImportService ImportService
 <FluentInputFile @ref="@myFileUploader"
                  DragDropZoneVisible="false"
                  Mode="InputFileMode.Stream"
@@ -27,14 +31,7 @@
 @if (Files.Any())
 {
     <h4>File(s) uploaded:</h4>
-    <ul>
-        @foreach (var ws in Worksheets)
-        {
-            <li>
-                <b>@ws.Name</b> 🔹
-            </li>
-        }
-    </ul>
+
 }
 
 @code
@@ -42,10 +39,7 @@
     FluentInputFile? myFileUploader = default!;
     int? progressPercent;
     string? progressTitle;
-
     FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
-
-    IList<IXLWorksheet> Worksheets = [];
     async Task OnCompleted(IEnumerable<FluentInputFileEventArgs> files)
     {
         Files = files.ToArray();
@@ -67,7 +61,16 @@
                     var workbook = new XLWorkbook(ms);
                     foreach (var ws in workbook.Worksheets)
                     {
-                        Worksheets.Add(ws);
+                        foreach(var row in ws.Rows().Skip(1))
+                        {
+                            var batterydata = new BatteryData()
+                                {
+                                    Serial = row.Cell(1).Value.ToString(),
+                                    Plant = row.Cell(2).Value.ToString(),
+                                    Customer = row.Cell(3).Value.ToString()
+                                };
+                            await ImportService.Import(batterydata);
+                        }
                     }
                 }
             }
