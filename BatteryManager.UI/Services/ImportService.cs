@@ -1,5 +1,8 @@
 ﻿using BatteryManager.UI.DataAccess;
 using BatteryManager.UI.Models;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
 
@@ -13,16 +16,46 @@ namespace BatteryManager.UI.Services
         {
             var customer = await GetOrCreateCustomer(batteryData.Customer);
             var plant = await GetOrCreatePlant(batteryData.Plant, customer);
-            _ = await GetOrCreateBattery(batteryData.Serial, plant);
+            var batteryClass = await GetOrCreateBatteryClass(batteryData.CellGeneration);
+            var batteryType = await GetOrCreateBatteryType(batteryData.ProductName, batteryClass, batteryData.Capacity, batteryData.Voltage);
+            var battery = await GetOrCreateBattery(batteryData.Serial, plant, batteryType);
             await context.SaveChangesAsync();
         }
 
-        private async Task<Battery> GetOrCreateBattery(string serial, Plant plant)
+        private async Task<BatteryClass> GetOrCreateBatteryClass(string cellGeneration)
+        {
+            var batteryClass = await context.BatteryClasses.SingleOrDefaultAsync(c => c.Name == cellGeneration);
+            if (batteryClass == null)
+            {
+                batteryClass = new BatteryClass() { Name = cellGeneration };
+                await context.BatteryClasses.AddAsync(batteryClass);
+            }
+            return batteryClass;
+        }
+
+        private async Task<BatteryType> GetOrCreateBatteryType(string productName, BatteryClass batteryClass, int capacity, int voltage)
+        {
+            var batteryType = await context.BatteryTypes.SingleOrDefaultAsync(c => c.ProductName == productName);
+            if (batteryType == null)
+            {
+                batteryType = new BatteryType()
+                {
+                    ProductName = productName,
+                    BatteryClass = batteryClass,
+                    Capacity = capacity,
+                    Voltage = voltage
+                };
+                await context.BatteryTypes.AddAsync(batteryType);
+            }
+            return batteryType;
+        }
+
+        private async Task<Battery> GetOrCreateBattery(string serial, Plant plant, BatteryType batteryType)
         {
             var battery = await context.Batteries.SingleOrDefaultAsync(c => c.Serial == serial);
             if (battery == null)
             {
-                battery = new Battery() { Serial = serial, Plant = plant };
+                battery = new Battery() { Serial = serial, Plant = plant, BatteryType = batteryType };
                 await context.Batteries.AddAsync(battery);
             }
             return battery;

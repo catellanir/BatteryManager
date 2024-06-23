@@ -65,9 +65,13 @@
                         {
                             var batterydata = new BatteryData()
                                 {
-                                    Serial = row.Cell(1).Value.ToString(),
-                                    Plant = row.Cell(2).Value.ToString(),
-                                    Customer = row.Cell(3).Value.ToString()
+                                    Serial = row.Cell("A").Value.ToString(),
+                                    ProductName = row.Cell("B").Value.ToString(),
+                                    Plant = row.Cell("C").Value.ToString(),
+                                    Customer = row.Cell("E").Value.ToString(),
+                                    Capacity = int.TryParse(row.Cell("F").Value.ToString(), out var capacity) ? capacity: 0,
+                                    Voltage = int.TryParse(row.Cell("G").Value.ToString(), out var voltage) ? voltage : 0,
+                                    CellGeneration = row.Cell("P").Value.ToString(),
                                 };
                             await ImportService.Import(batterydata);
                         }

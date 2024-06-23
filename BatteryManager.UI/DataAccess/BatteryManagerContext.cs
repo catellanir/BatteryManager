@@ -7,6 +7,8 @@ namespace BatteryManager.UI.DataAccess
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Plant> Plants{ get; set; }
         public DbSet<Battery> Batteries{ get; set; }
+        public DbSet<BatteryType> BatteryTypes{ get; set; }
+        public DbSet<BatteryClass> BatteryClasses { get; set; }
 
         public BatteryManagerContext(DbContextOptions options) : base(options)
         {
