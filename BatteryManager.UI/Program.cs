@@ -1,9 +1,10 @@
-using Microsoft.FluentUI.AspNetCore.Components;
 using BatteryManager.UI.Components;
 using BatteryManager.UI.DataAccess;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using BatteryManager.UI.Services;
+
+using Microsoft.EntityFrameworkCore;
+
+using Microsoft.FluentUI.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 

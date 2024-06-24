@@ -7,7 +7,13 @@ namespace BatteryManager.UI.Services
     {
         public async Task<IList<Battery>> GetAll()
         {
-            return await context.Batteries.Include(x=> x.Plant).ThenInclude(x=> x.Customer).ToListAsync();
+            return await context.Batteries
+                .AsNoTracking()
+                .Include(x => x.Plant)
+                .ThenInclude(x => x.Customer)
+                .OrderBy(x => x.Plant.Name)
+                .Take(100)
+                .ToListAsync();
         }
     }
 }

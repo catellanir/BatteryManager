@@ -8,6 +8,33 @@ namespace BatteryManager.UI.Migrations
     public partial class AddBatteryClasses : Migration
     {
         /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Batteries_BatteryTypes_BatteryTypeId",
+                schema: "BatteryManager",
+                table: "Batteries");
+
+            migrationBuilder.DropTable(
+                name: "BatteryTypes",
+                schema: "BatteryManager");
+
+            migrationBuilder.DropTable(
+                name: "BatteryClasses",
+                schema: "BatteryManager");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Batteries_BatteryTypeId",
+                schema: "BatteryManager",
+                table: "Batteries");
+
+            migrationBuilder.DropColumn(
+                name: "BatteryTypeId",
+                schema: "BatteryManager",
+                table: "Batteries");
+        }
+
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<int>(
@@ -77,33 +104,6 @@ namespace BatteryManager.UI.Migrations
                 principalTable: "BatteryTypes",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Batteries_BatteryTypes_BatteryTypeId",
-                schema: "BatteryManager",
-                table: "Batteries");
-
-            migrationBuilder.DropTable(
-                name: "BatteryTypes",
-                schema: "BatteryManager");
-
-            migrationBuilder.DropTable(
-                name: "BatteryClasses",
-                schema: "BatteryManager");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Batteries_BatteryTypeId",
-                schema: "BatteryManager",
-                table: "Batteries");
-
-            migrationBuilder.DropColumn(
-                name: "BatteryTypeId",
-                schema: "BatteryManager",
-                table: "Batteries");
         }
     }
 }

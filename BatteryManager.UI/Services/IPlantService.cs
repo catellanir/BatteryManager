@@ -4,8 +4,10 @@ namespace BatteryManager.UI.Services
 {
     public interface IPlantService
     {
-        Task<IList<Plant>> GetAll();
-        Task<Plant?> GetByName(string name);
         Task AddPlant(string name, int customerId);
+
+        Task<IList<Plant>> GetAll();
+
+        Task<Plant?> GetByName(string name);
     }
 }
